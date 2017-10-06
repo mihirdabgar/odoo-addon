@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+	<data>
+
+		<record model='ir.ui.view' id='invoice_order_tree_view'>
+			<field name='name'>invoice.order.tree.view</field>
+			<field name='model'>product.order</field>
+			<field name='arch' type='xml'>
+				<tree string='Order'>
+					<field name='name'/>
+					<field name='partner_id'/>
+					<field name='order_date'/>
+				</tree>
+			</field>
+		</record>
+		
+		<record model='ir.ui.view' id='invoice_order_form_view'>
+			<field name='name'>invoice.order.form.view</field>
+			<field name='model'>product.order</field>
+			<field name='arch' type='xml'>
+				<form string='Order'>
+					<sheet>
+						<div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+						<group>
+							<group>
+								<field name='partner_id'/>
+							</group>
+							<group>
+								<field name='order_date'/>
+							</group>
+						</group>
+						<notebook>
+							<page  string="Order Line"  name="Order">
+								<field name='order_lines'>
+									<form>
+										<group>
+											<group>
+												<field name="product_id"/>
+												<field name="hsn_no" readonly="1"/>
+												<field name="gst_per" readonly="1"/>
+												<field name="price" readonly="1"/>
+											</group>
+											<group>
+												<field name="qty"/>
+												<field name="amount" readonly="1"/>
+												<field name="cgst" readonly="1"/>
+												<field name="sgst" readonly="1"/>
+												<field name="total" readonly="1"/>
+											</group>
+										</group>
+									</form>
+									<tree>
+										<field name="product_id"/>
+										<field name="hsn_no"/>
+										<field name="qty"/>
+										<field name="price"/>
+										<field name="amount"/>
+										<field name="gst_per"/>
+										<field name="cgst"/>
+										<field name="sgst"/>
+										<field name="total"/>
+									</tree>
+	                            </field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id='invoice_order_action' model="ir.actions.act_window">
+			<field name="name">Order</field>
+			<field name="res_model">product.order</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+
+		<menuitem name='Order' id='menu_invoice_order' parent="menu_invoice_print" action='invoice_order_action'/>
+
+	</data>
+</odoo>

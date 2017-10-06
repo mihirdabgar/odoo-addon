@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<report 
+			id="report_result"
+			string="Invoice"
+			model="product.order"
+			report_type="qweb-pdf"
+			file="invoice_print.invoice_report_view" 
+			name="invoice_print.invoice_report_view" 
+		/>
+	</data>
+
+
+	<template id="invoice_external_layout">
+		<t t-if="not o and doc">
+			<t t-set="o" t-value="doc"/>
+		</t>
+			<t t-if="o and 'company_id' in o">
+		<t t-set="company" t-value="o.company_id"></t>
+		</t>
+		<t t-if="not o or not 'company_id' in o">
+			<t t-set="company" t-value="res_company"></t>
+		</t>
+
+		<t t-call="invoice_print.invoice_external_layout_header" />
+		<t t-raw="0" />
+		<t t-call="invoice_print.invoice_external_layout_footer" />
+	</template>
+
+	<template id="invoice_external_layout_header">
+		<div class="header">
+			<div class="row">
+				<div class="col-xs-2 text-left">
+					Debit Memo
+				</div>
+				<div class="col-xs-8 text-center">
+					<div class="col-xs-12">
+					    <h3><b><span t-field="company.name"/></b></h3>
+					    <span t-field="company.partner_id"
+						t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>
+						<ul class="list-inline">
+							<t t-set="company" t-value="company.sudo()"/>
+							<li t-if="company.phone">Phone: <span t-field="company.phone"/></li>
+							<li t-if="company.email and company.fax or company.email and company.phone">&amp;bull;</li>
+							<li t-if="company.email">Email: <span t-field="company.email"/></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-xs-2 text-right">
+					Duplicat
+				</div>
+			</div>
+		</div>
+	</template>
+
+	<template id="invoice_external_layout_footer">
+		<div class="footer">
+			<div class="row" style="border: 1px solid black;">
+				<div class="col-xs-4"  style="border-right: 1px solid black;">
+					<div class="col-xs-12">
+						<b> Terms &amp; Condition:</b>
+					</div>
+					<div class="col-xs-12" style="font-size:12px;">
+						1) Goods Once Sold Will Not Be Accepted
+					</div>
+					<div class="col-xs-12" style="font-size:11px;">
+						<b>2) Subject To <span t-field="company.city"/> Jurisdiction.E &amp; O E.</b>
+					</div>
+					<div class="col-xs-12" style="font-size:12px;">
+						Salesman:
+					</div>
+				</div>
+				<div class="col-xs-4">
+					<b>Notes:</b>
+				</div>
+				<div class="col-xs-4" style="border-left: 1px solid black;">
+					<div class="col-xs-12 text-center" style="padding-bootom:60px;">
+						<b>For, <span t-field="company.name"/></b>
+					</div>
+					<div class="col-xs-12 text-center" style="padding-top:30px;">
+						(Authorised Signatory)
+					</div>
+				</div>
+			</div>
+		</div>
+	</template>
+
+	<template id="invoice_report_view">
+		<t t-call="report.html_container">
+			<t t-foreach="docs" t-as="doc">
+				<t t-call="invoice_print.invoice_external_layout">
+					<div class="page" >
+						<div class="row" style="border: 1px solid">
+							<div class="col-xs-12">
+								<div class="col-xs-8">
+									<div class="row">
+										<div class="col-xs-9">
+											Customer Name:
+											<span t-esc="doc.partner_id.name"/>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-2">
+											Address:
+										</div>
+										<div class="col-xs-10">
+											<span t-esc="doc.partner_id.street"/>,
+											<span t-esc="doc.partner_id.street2" t-if="doc.partner_id.street2"/><br />
+											<span t-esc="doc.partner_id.city" t-if="doc.partner_id.city"/><br />
+											<span t-esc="doc.partner_id.state_id.name" t-if="doc.partner_id.state_id.name"/>
+										</div>
+									</div>
+								</div>
+								<div class="col-xs-4" style="border-left: 1px solid">
+									<div class="col-xs-12 text-center" style="border-bottom: 1px solid">
+										<b>TAX INVOICE</b>
+									</div>
+									<div class="col-xs-12">
+										Invoice No :<span t-field="doc.name"/>
+									</div>
+									<div class="col-xs-12">
+										Date :<span t-field="doc.order_date"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Sr No.</th>
+										<th>Product Name</th>
+										<th>HSN/SAC</th>
+										<th>MRP</th>
+										<th>Quatity</th>
+										<th>Taxable Amount</th>
+										<th>GST%</th>
+										<th>CGST</th>
+										<th>SGST</th>
+										<th>Net Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<t t-set="sr_no" t-value='1'/>
+									<t t-foreach="doc.order_lines" t-as="subline">
+										<tr>
+
+											<td><span t-esc="sr_no"/></td>
+											<t t-set="sr_no" t-value='sr_no+1'/>
+											<td><span t-esc="subline.product_id.name"/></td>
+											<td><span t-esc="subline.hsn_no" /></td>
+											<td><span t-esc="subline.price" /></td>
+											<td><span t-esc="subline.qty" /></td>
+											<td><span t-esc="subline.amount" /></td>
+											<td><span t-esc="subline.gst_per" /></td>
+											<td><span t-esc="subline.cgst" /></td>
+											<td><span t-esc="subline.sgst" /></td>
+											<td><span t-esc="subline.total" /></td>
+										</tr>
+									</t>
+								</tbody>
+							</table>
+						</div>
+
+					</div> 
+				</t>
+			</t>
+		</t>
+	</template>
+</odoo>
